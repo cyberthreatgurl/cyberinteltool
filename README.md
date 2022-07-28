@@ -1,5 +1,6 @@
-# cyberinteltool
-##Building a new cyber intelligence tool for technical intelligence
+cyberinteltool
+
+Building a new cyber intelligence tool for technical intelligence
 
 
 This project is my initial cut at Topic Modeling using LDA for gathering patents
