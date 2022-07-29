@@ -1,6 +1,55 @@
 ############################################################
-# IT-
-
+# IT-797 Natural Language Processing
+# Date:       July 29. 2022
+# Subject:   Final Project
+# Student:   Kelly Shaw
+# EMail:     aks62069@marymount.edu
+# GitHub:    https://github.com/cyberthreatgurl/cyberinteltool
+#
+# Description:
+# This python script reads PDF files, ingests the text from them, and
+# performs LDA topic modeling to produce web pages of the results.
+#
+#
+# Details:
+# This python script searches the "corpus" subfolder (in same folder as this
+# main.py file) for patent and academic reporting. This reporting is in PDF
+# format.  Once read in, the PyPDF2 module is used to read the ASCII strings
+# from the file (if possible). Then, the stop words are pulled from the text
+# before being written to a gensim module dictionary. The pyLDAvis module then
+# uses the Latent Dirichelt Allocation topic modeling library to fine the
+# top terms in each file.
+#
+# The PyPDF2, gensim, pyLDAvis, nltk libraries need to be imported.
+#
+# Python Version:   3.8
+#
+# How to run this script:
+# Download patent and academic reporting in to the corpus folder.  There are subfolders for
+# the region and country under the patents and academic subfolders.
+#
+# Notes:
+# This script does not translate any language (yet).  However, support for
+# this feature is planned.
+#
+#  - Flat (scanned in) pdf files throw an error and are skipped.
+#  - There is no support (yet) to scrape PDF files from a website.
+#  - Empty folders are skipped.
+#
+# Great websites to find these files include:
+#  scholar.google.com, scholar.archive.org, and patents.google.com
+#
+# How to run:
+# - To run this script, use Python 3.8  (at least).
+# - Ensure the corpus/academic and corpus/patens subfolders are populated
+#   with files of interest.
+# - This program then generates an index.html file and a web page for
+#   each country that shows the LDA visualization of the cyber-defense
+#   and cyber-offense technologies being researched and developed.
+# - You can manually tweak the "stop words" until you are happy
+#   that all the extraneous words have been removed from the
+#   corpus.
+#
 import nltk
 import gensim
 import warnings
