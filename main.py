@@ -97,6 +97,8 @@ def build_html_body_frame():
     file.write(html_body_text)
     file.close()
 
+# Build the end section of the index.html
+# output file.
 def build_html_end():
     html_end_text = '''
         </body>
@@ -105,16 +107,22 @@ def build_html_end():
     file.write(html_end_text)
     file.close()
 
-
+# Checks to see if a multidimensional
+# list is empty
 def isListEmpty(inList):
     if isinstance(inList, list): # Is a list
         return all( map(isListEmpty, inList) )
     return False # Not a list
 
-#
+# Get rid of stop words and tokenize
+# the text read from the source file.
 def preprocess(textstring):
     s_words = stopwords.words('english')
     s_words.extend(
+        # These words were manually added after running the script multiple times
+        # and is a trial and error process.  Future updates would allow for this
+        # to be read from a file or selected on the web page and removed
+        # automatically
         ['include', 'also', 'system', 'one', 'risk', 'test', 'computer', 'data', 'may', 'fig',
          'time', 'network', 'information', 'example', 'least', 'user', 'said', 'tag', 'set', 'scan', 'computing',
          'electronic', 'action', 'embodiments', 'base', 'ip','security','et','al','device','wherein','based', 'e','g','intensity',
@@ -134,7 +142,7 @@ def preprocess(textstring):
          'states','order','unit','ability','classical''made','might','year','way','carried','activities','great','become',
          'act','usually','amount','cyber','political','international','term','preference','specific','long','company',
          'legal','allow','corporate','section', 'discussion', 'investments','operation', 'program','ratings','response',
-         'pp','layer','independent','polynomial'] )
+         'pp','layer','independent','polynomial', 'devices','internet', 'de','engine','module','mode','smx'])
 
     stops = set(s_words)
 
@@ -172,8 +180,6 @@ def pdf_extractor(pdf, corpus_list, text_list):
             #print('File '+ pdf + ' is ' + langText)
         except Exception as exc:
             exc
-            # log this
-            #print ('PDFReader Error: ' + str(exc) +' File: '+ pdf)
 
     pdf_file_obj.close()
     return corpus_list, text_list
@@ -187,6 +193,9 @@ if __name__ == '__main__':
     # country
     sources = ['patents','academic']
 
+    # this section needs to be manually updated
+    # as new country data is found.  Of course,
+    # this needs to be done automatically in the future.
     countries = [('australia','oceania'),('belarus','europe'), ('canada','northamerica'),('china','asia'),
                  ('cyprus','europe'),('czech','europe'),('denmark','europe'),('finland','europe'),
                  ('france','europe'), ('germany','europe'), ('greece','europe'),('india','asia'),
@@ -206,6 +215,11 @@ if __name__ == '__main__':
     data_folder = 'corpus'
     cur_dir = os.getcwd()
     abs_path = cur_dir + '/'+ data_folder
+
+    # iterate through all a countries (patent and academic papers
+    # before foing analysis on the text, so that each country
+    # has a unique file.  Future updates will allow this to be
+    # more flexible.
     for country in countries:
         # build the path to this folder
         # grab all of the files from this particular folder
