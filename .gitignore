@@ -1,4 +1,6 @@
-*.pkl
+dictionary.gensim
+main-pre-.py
+.pkl
 *.html
 model1*
 *.html
@@ -158,3 +160,4 @@ corpus/
 *gz
 *.html
 *.gz
+.DS_Store
