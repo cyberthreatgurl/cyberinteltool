@@ -1,0 +1,81 @@
+corpus/
+├── academic
+│   ├── africa
+│   │   ├── morocco
+│   │   └── southafrica
+│   ├── asia
+│   │   ├── china
+│   │   ├── india
+│   │   ├── japan
+│   │   ├── pakistan
+│   │   ├── singapore
+│   │   ├── srilanka
+│   │   └── taiwan
+│   ├── europe
+│   │   ├── belarus
+│   │   ├── cyprus
+│   │   ├── czech
+│   │   ├── denmark
+│   │   ├── finland
+│   │   ├── france
+│   │   ├── germany
+│   │   ├── greece
+│   │   ├── italy
+│   │   ├── liechtenstein
+│   │   ├── poland
+│   │   ├── russia
+│   │   ├── slovenia
+│   │   ├── spain
+│   │   ├── sweden
+│   │   ├── switzerland
+│   │   ├── turkey
+│   │   └── uk
+│   ├── mideast
+│   │   ├── israel
+│   │   └── saudiarabia
+│   ├── northamerica
+│   │   ├── canada
+│   │   └── us
+│   └── oceania
+│       └── australia
+└── patents
+    ├── africa
+    │   ├── morocco
+    │   └── southafrica
+    ├── asia
+    │   ├── china
+    │   ├── japan
+    │   ├── korea
+    │   ├── pakistan
+    │   ├── singapore
+    │   ├── southkorea
+    │   ├── srilanka
+    │   └── tawain
+    ├── europe
+    │   ├── belarus
+    │   ├── cyprus
+    │   ├── czech
+    │   ├── denmark
+    │   ├── finland
+    │   ├── france
+    │   ├── germany
+    │   ├── greece
+    │   ├── italy
+    │   ├── liechtenstein
+    │   ├── poland
+    │   ├── russia
+    │   ├── slovenia
+    │   ├── spain
+    │   ├── turkey
+    │   └── uk
+    ├── mideast
+    │   ├── israel
+    │   └── saudiarabia
+    ├── northamerica
+    │   ├── canada
+    │   └── us
+    ├── oceania
+    │   └── australia
+    └── wipo
+
+78 directories
