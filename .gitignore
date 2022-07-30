@@ -1,6 +1,7 @@
-*.pckl
+*.pkl
 *.html
-*.htm
+model1*
+*.html
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
