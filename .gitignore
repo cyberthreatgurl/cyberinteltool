@@ -1,3 +1,4 @@
+*.json
 dictionary.gensim
 main-pre-.py
 .pkl

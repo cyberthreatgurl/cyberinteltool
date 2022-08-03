@@ -1,9 +1,7 @@
 ############################################################
-# IT-797 Natural Language Processing
-# Date:       July 29. 2022
-# Subject:   Final Project
-# Student:   Kelly Shaw
-# EMail:     aks62069@marymount.edu
+# Date:      July 29. 2022
+# Coder:     Kelly Shaw
+# EMail:     cyberintelgurl@gmail.com
 # GitHub:    https://github.com/cyberthreatgurl/cyberinteltool
 #
 # Description:
@@ -52,14 +50,17 @@
 #   corpus.
 #
 # Version
-# 1.1 - Cleaned-up    July 29, 2022     AKS
+# 1.1 - Cleaned-up                                          July 29, 2022   AKS
+# 1.1a - Added TF-IDF Model and started JSON file input     Aug 2, 2022     AKS
 #
 import nltk
 import gensim
 import warnings
+import json
 import os
 import pickle
 import glob
+import pandas as pd
 
 import PyPDF2
 import pyLDAvis
@@ -67,6 +68,7 @@ import langdetect
 
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
+from nltk.probability import FreqDist
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from langdetect import detect, DetectorFactory
@@ -285,7 +287,8 @@ def preprocess(textstring):
             "behavior",
             "source",
             "thus",
-            "performance" "potential",
+            "performance",
+            "potential",
             "beyond",
             "robust",
             "underlay",
@@ -300,7 +303,7 @@ def preprocess(textstring):
             "address",
             "interface",
             "threshold",
-            "corresponding" "term",
+            "corresponding",
             "short",
             "would",
             "due",
@@ -325,7 +328,8 @@ def preprocess(textstring):
             "order",
             "unit",
             "ability",
-            "classical" "made",
+            "classical",
+            "made",
             "might",
             "year",
             "way",
@@ -367,14 +371,18 @@ def preprocess(textstring):
             "smx",
         ]
     )
-
+    # Need to lemmatize and
     stops = set(s_words)
-
     tokens = word_tokenize(textstring.lower())
     return [token.lower() for token in tokens if token.isalpha() and token not in stops]
 
 
-#
+def json_extractor():
+    # open and read json file in to a data fram
+    df = pd.read_json('2022.json')
+
+    print(df.info())
+#   return
 # function to extract text from PDF files
 #
 def pdf_extractor(pdf, corpus_list, text_list):
@@ -389,6 +397,8 @@ def pdf_extractor(pdf, corpus_list, text_list):
 
             DetectorFactory.seed = 0
 
+            # read each page of the pdf file and
+            # grab the text from it
             for pn in range(0, pdf_obj.numPages):
                 page = pdf_obj.getPage(pn)
 
@@ -409,6 +419,11 @@ def pdf_extractor(pdf, corpus_list, text_list):
     pdf_file_obj.close()
     return corpus_list, text_list
 
+# sort the tfidf output
+def Sort(tfidf_tuples):
+    "This sorts based on the second value in our tuple, the tf-idf score"
+    tfidf_tuples.sort(key = lambda x: x[1], reverse=True)
+    return tfidf_tuples
 
 #
 if __name__ == "__main__":
@@ -416,6 +431,10 @@ if __name__ == "__main__":
     # build a list of the countries for patents and academic
     # for all academic papers written in English, regardless of
     # country
+
+    # read in USPTO Patent json files
+    json_extractor()
+
     sources = ["patents", "academic"]
 
     # this section needs to be manually updated
@@ -431,6 +450,7 @@ if __name__ == "__main__":
         ("denmark", "europe"),
         ("finland", "europe"),
         ("france", "europe"),
+        ("ghana", "africa"),
         ("germany", "europe"),
         ("greece", "europe"),
         ("india", "asia"),
@@ -442,7 +462,7 @@ if __name__ == "__main__":
         ("morocco", "africa"),
         ("pakistan", "asia"),
         ("poland", "europe"),
-        ("russia", "europe"),
+        ("russia", "asia"),
         ("saudiarabia", "mideast"),
         ("singapore", "asia"),
         ("southafrica", "africa"),
@@ -523,9 +543,32 @@ if __name__ == "__main__":
 
         id2word = dictionary.id2token
         total_pages = len(corpus)
+
         print("Total number of pages parsed in this corpus: %d" % total_pages)
         print("-------------")
         print("")
+
+        #
+        # create a TF-IDF model
+        freq_model = gensim.models.TfidfModel(corpus)
+
+        # Create TF-IDF scores for the ``bow_corpus`` using our model
+        corpus_tfidf = freq_model[corpus]
+
+        td = {}
+        for document in corpus_tfidf:
+            for token_id, score in document:
+                current_score = td.get(dictionary.get(token_id), 0)
+                if current_score < score:
+                    td.update([(dictionary.get(token_id), score)])
+
+        # Sort the items of ``td`` into a new variable ``sorted_td``
+        # the ``reverse`` starts from highest to lowest
+        sorted_td = sorted(td.items(), key=lambda kv: kv[1], reverse=False)
+        print ('Term\t\t\t\tWeight')
+        print ('-------------------------')
+        for term, weight in sorted_td[:10]:  # Print the top 10 terms in the entire corpus
+            print('{0:s}\t\t\t\t{1:.2f}'.format(term, weight))
 
         # Train the topic model
         model = LdaModel(
