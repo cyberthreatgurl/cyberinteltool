@@ -1,3 +1,4 @@
+fresh.sh
 *.json
 dictionary.gensim
 main-pre-.py

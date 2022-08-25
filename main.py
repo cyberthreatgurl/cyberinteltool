@@ -60,6 +60,7 @@ import json
 import os
 import pickle
 import glob
+
 import pandas as pd
 
 import PyPDF2
@@ -74,6 +75,7 @@ from nltk.tokenize import word_tokenize
 from langdetect import detect, DetectorFactory
 
 from pyLDAvis import gensim_models as gensimvis
+from pandas import json_normalize
 
 # get rid of those pesky deprecation warnings.
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -142,6 +144,17 @@ def preprocess(textstring):
             "test",
             "computer",
             "data",
+            "generate",
+            "including",
+            "etc",
+            "raw",
+            "another",
+            "n",
+            "r",
+            "x",
+            "embodiment",
+            "provide:",
+            "values",
             "may",
             "fig",
             "time",
@@ -271,6 +284,12 @@ def preprocess(textstring):
             "new",
             "method",
             "c",
+            "environment",
+            "topics",
+            "future",
+            "articles",
+            "like",
+            "making",
             "input",
             "group",
             "entity",
@@ -351,6 +370,8 @@ def preprocess(textstring):
             "legal",
             "allow",
             "corporate",
+            "examples",
+            "non",
             "section",
             "discussion",
             "investments",
@@ -377,12 +398,6 @@ def preprocess(textstring):
     return [token.lower() for token in tokens if token.isalpha() and token not in stops]
 
 
-def json_extractor():
-    # open and read json file in to a data fram
-    df = pd.read_json('2022.json')
-
-    print(df.info())
-#   return
 # function to extract text from PDF files
 #
 def pdf_extractor(pdf, corpus_list, text_list):
@@ -419,11 +434,13 @@ def pdf_extractor(pdf, corpus_list, text_list):
     pdf_file_obj.close()
     return corpus_list, text_list
 
+
 # sort the tfidf output
 def Sort(tfidf_tuples):
     "This sorts based on the second value in our tuple, the tf-idf score"
-    tfidf_tuples.sort(key = lambda x: x[1], reverse=True)
+    tfidf_tuples.sort(key=lambda x: x[1], reverse=True)
     return tfidf_tuples
+
 
 #
 if __name__ == "__main__":
@@ -433,7 +450,7 @@ if __name__ == "__main__":
     # country
 
     # read in USPTO Patent json files
-    json_extractor()
+#    json_extractor()
 
     sources = ["patents", "academic"]
 
@@ -442,38 +459,51 @@ if __name__ == "__main__":
     # this needs to be done automatically in the future.
     countries = [
         ("australia", "oceania"),
+        ("austria", "europe"),
         ("belarus", "europe"),
+        ("belgium", "europe"),
         ("canada", "northamerica"),
         ("china", "asia"),
         ("cyprus", "europe"),
-        ("czech", "europe"),
+        ("czechrepublic", "europe"),
         ("denmark", "europe"),
+        ("ecuador", "southamerica"),
         ("finland", "europe"),
         ("france", "europe"),
         ("ghana", "africa"),
         ("germany", "europe"),
         ("greece", "europe"),
         ("india", "asia"),
+        ("iraq", "asia"),
         ("israel", "mideast"),
         ("italy", "europe"),
         ("japan", "asia"),
-        ("korea", "asia"),
+        ("jordan", "asia"),
         ("liechtenstein", "europe"),
         ("morocco", "africa"),
+        ("netherlands", "europe"),
+        ("norway", "europe"),
+        ("nigeria", "africa"),
         ("pakistan", "asia"),
         ("poland", "europe"),
+        ("portugal", "europe"),
+        ("romania", "europe"),
         ("russia", "asia"),
         ("saudiarabia", "mideast"),
+        ("serbia", "europe"),
         ("singapore", "asia"),
         ("southafrica", "africa"),
+        ("southkorea", "asia"),
         ("spain", "europe"),
         ("srilanka", "asia"),
         ("sweden", "europe"),
+        ("slovakrepublick", "europe"),
         ("slovenia", "europe"),
         ("switzerland", "europe"),
         ("turkey", "europe"),
         ("taiwan", "asia"),
         ("uk", "europe"),
+        ("ukraine", "europe"),
         ("us", "northamerica"),
     ]
 
@@ -490,8 +520,9 @@ if __name__ == "__main__":
     # iterate through all a countries (patent and academic papers
     # before foing analysis on the text, so that each country
     # has a unique file.  Future updates will allow this to be
-    # more flexible.
+    # more flexible
     for country in countries:
+
         # build the path to this folder
         # grab all of the files from this particular folder
         pdf_path = "**/" + country[0] + "/*.pdf"
@@ -564,15 +595,15 @@ if __name__ == "__main__":
 
         # Sort the items of ``td`` into a new variable ``sorted_td``
         # the ``reverse`` starts from highest to lowest
-        sorted_td = sorted(td.items(), key=lambda kv: kv[1], reverse=False)
-        print ('Term\t\t\t\tWeight')
-        print ('-------------------------')
-        for term, weight in sorted_td[:10]:  # Print the top 10 terms in the entire corpus
-            print('{0:s}\t\t\t\t{1:.2f}'.format(term, weight))
+        sorted_td = sorted(td.items(), key=lambda kv: kv[1], reverse=True)
+        print("Term\t\t\t\tWeight")
+        print("-------------------------")
+        for term, weight in sorted_td[:5]:  # Print the top  terms in the entire corpus
+            print("{0:s}\t\t\t\t{1:.2f}".format(term, weight))
 
         # Train the topic model
         model = LdaModel(
-            corpus=corpus, id2word=id2word, iterations=500, num_topics=5, alpha="auto"
+            corpus=corpus, id2word=id2word, iterations=100, num_topics=5, alpha="auto"
         )
         model.save("model1,gensim")
 
