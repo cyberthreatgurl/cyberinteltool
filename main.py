@@ -60,8 +60,9 @@ import json
 import os
 import pickle
 import glob
-import translate
+
 import pandas as pd
+
 import PyPDF2
 import pyLDAvis
 import langdetect
@@ -69,16 +70,9 @@ import langdetect
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
 from nltk.probability import FreqDist
+from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
-from database import create_database, pdf_database_write
-from create_webpage import *
-from pdf_utils import pdf_extractor
-from nltk_utils import *
-
-from utils import isEmptyList, Sort
-
-
+from langdetect import detect, DetectorFactory
 
 from pyLDAvis import gensim_models as gensimvis
 from pandas import json_normalize
@@ -88,12 +82,368 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # nltk.download('stopwords')
 
+# Build the header section of the
+# output index.html page
+def build_html_head():
+    html_heading_text = """
+    <html>
+        <head><title>Cyber Security Defense and Offense Topic Modeling</title>
+        <h1>Topic Modeling of Cyber Offense/Defensive Terms</h1>
+        </head>
+    """
+    file = open("index.html", "w")
+    file.write(html_heading_text)
+    file.close()
+
+
+# build the body section of the
+# output index.html page.
+def build_html_body_frame():
+    html_body_text = """
+        <body bgcolor="white">
+    """
+    file = open("index.html", "a")
+    file.write(html_body_text)
+    file.close()
+
+
+# Build the end section of the index.html
+# output file.
+def build_html_end():
+    html_end_text = """
+        </body>
+    </html>"""
+    file = open("index.html", "a")
+    file.write(html_end_text)
+    file.close()
+
+
+# Checks to see if a multidimensional
+# list is empty
+def isListEmpty(inList):
+    if isinstance(inList, list):  # Is a list
+        return all(map(isListEmpty, inList))
+    return False  # Not a list
+
+
+# Get rid of stop words and tokenize
+# the text read from the source file.
+def preprocess(textstring):
+    s_words = stopwords.words("english")
+    s_words.extend(
+        # These words were manually added after running the script multiple times
+        # and is a trial and error process.  Future updates would allow for this
+        # to be read from a file or selected on the web page and removed
+        # automatically
+        [
+            "include",
+            "also",
+            "system",
+            "one",
+            "risk",
+            "test",
+            "computer",
+            "data",
+            "generate",
+            "including",
+            "etc",
+            "raw",
+            "another",
+            "n",
+            "r",
+            "x",
+            "embodiment",
+            "provide:",
+            "values",
+            "may",
+            "fig",
+            "time",
+            "network",
+            "information",
+            "example",
+            "least",
+            "user",
+            "said",
+            "tag",
+            "set",
+            "scan",
+            "computing",
+            "electronic",
+            "action",
+            "embodiments",
+            "base",
+            "ip",
+            "security",
+            "et",
+            "al",
+            "device",
+            "wherein",
+            "based",
+            "e",
+            "g",
+            "intensity",
+            "knowledge",
+            "used",
+            "mg",
+            "patent",
+            "w",
+            "claim",
+            "composition",
+            "quic",
+            "node",
+            "graph",
+            "event",
+            "request",
+            "score",
+            "context",
+            "local",
+            "first",
+            "task",
+            "control",
+            "protected",
+            "i",
+            "ieee",
+            "v",
+            "k",
+            "p",
+            "ieee",
+            "acm",
+            "using",
+            "readable",
+            "db" "herein",
+            "flow",
+            "process",
+            "plurality",
+            "certain",
+            "filed",
+            "disorder",
+            "certain",
+            "filed",
+            "use",
+            "part",
+            "number",
+            "mice",
+            "could",
+            "content",
+            "application",
+            "sheet",
+            "associated",
+            "particular",
+            "county",
+            "herein",
+            "various",
+            "described",
+            "instructions",
+            "optimal",
+            "call",
+            "access",
+            "connected",
+            "pages",
+            "results",
+            "configured",
+            "second",
+            "level",
+            "site",
+            "solution",
+            "histogram",
+            "determine",
+            "value",
+            "step",
+            "determined",
+            "problem",
+            "include",
+            "within",
+            "list",
+            "different",
+            "present",
+            "stored",
+            "type",
+            "vol",
+            "d",
+            "b",
+            "h",
+            "determining",
+            "two",
+            "includes",
+            "implemented",
+            "state",
+            "activity",
+            "related",
+            "received",
+            "source",
+            "sources",
+            "additional",
+            "centroid",
+            "known",
+            "date",
+            "disclosure",
+            "initial",
+            "collective",
+            "publication",
+            "u",
+            "new",
+            "method",
+            "c",
+            "environment",
+            "topics",
+            "future",
+            "articles",
+            "like",
+            "making",
+            "input",
+            "group",
+            "entity",
+            "strategy",
+            "file",
+            "message",
+            "die",
+            "media",
+            "available",
+            "accessed",
+            "table",
+            "normal",
+            "unusual",
+            "behavior",
+            "source",
+            "thus",
+            "performance",
+            "potential",
+            "beyond",
+            "robust",
+            "underlay",
+            "features",
+            "claims",
+            "rules",
+            "processing",
+            "continues",
+            "wo",
+            "events",
+            "transaction",
+            "address",
+            "interface",
+            "threshold",
+            "corresponding",
+            "short",
+            "would",
+            "due",
+            "well",
+            "make",
+            "things",
+            "products",
+            "three",
+            "function",
+            "distance",
+            "three",
+            "figure",
+            "zero",
+            "actions",
+            "take",
+            "ability",
+            "knight",
+            "rl",
+            "reward",
+            "world",
+            "states",
+            "order",
+            "unit",
+            "ability",
+            "classical",
+            "made",
+            "might",
+            "year",
+            "way",
+            "carried",
+            "activities",
+            "great",
+            "become",
+            "act",
+            "usually",
+            "amount",
+            "cyber",
+            "political",
+            "international",
+            "term",
+            "preference",
+            "specific",
+            "long",
+            "company",
+            "legal",
+            "allow",
+            "corporate",
+            "examples",
+            "non",
+            "section",
+            "discussion",
+            "investments",
+            "operation",
+            "program",
+            "ratings",
+            "response",
+            "pp",
+            "layer",
+            "independent",
+            "polynomial",
+            "devices",
+            "internet",
+            "de",
+            "engine",
+            "module",
+            "mode",
+            "smx",
+        ]
+    )
+    # Need to lemmatize and
+    stops = set(s_words)
+    tokens = word_tokenize(textstring.lower())
+    return [token.lower() for token in tokens if token.isalpha() and token not in stops]
+
+
+# function to extract text from PDF files
+#
+def pdf_extractor(pdf, corpus_list, text_list):
+    """Extract the text of pdfs and return a dictionary with
+   the file name as a key, and the value being a list of the pages
+   and the containing texts
+    """
+    with open(pdf, "rb") as pdf_file_obj:
+        try:
+            # translator = Translator(to_lang="English")
+            pdf_obj = PyPDF2.PdfReader(pdf_file_obj, strict=False)
+
+            DetectorFactory.seed = 0
+
+            # read each page of the pdf file and
+            # grab the text from it
+            for pn in range(0, pdf_obj.numPages):
+                page = pdf_obj.getPage(pn)
+
+                text = page.extractText().lower()
+                # translation = translator.translate(text)
+
+                cleaned_list = preprocess(text)
+                corpus_list.append(cleaned_list)
+
+                text_list.append((pdf, pn))
+            #               print(pdf_obj.extractText())
+
+            langText = detect(text)
+            # print('File '+ pdf + ' is ' + langText)
+        except Exception as exc:
+            exc
+
+    pdf_file_obj.close()
+    return corpus_list, text_list
+
+
+# sort the tfidf output
+def Sort(tfidf_tuples):
+    "This sorts based on the second value in our tuple, the tf-idf score"
+    tfidf_tuples.sort(key=lambda x: x[1], reverse=True)
+    return tfidf_tuples
+
+
 #
 if __name__ == "__main__":
-
-    # create the database
-    #create_datebase()
-    
     #
     # build a list of the countries for patents and academic
     # for all academic papers written in English, regardless of
@@ -193,9 +543,7 @@ if __name__ == "__main__":
         for pdf in pdfs:
             # call the extraction function
             corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
-            #write corpus to database
-            pdf_database_write(pdf, text_list)
-            
+
         # Create a dictionary representation of the documents.
         dictionary = Dictionary(corpus_list)
 
