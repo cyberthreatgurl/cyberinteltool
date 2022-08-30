@@ -53,35 +53,25 @@
 # 1.1 - Cleaned-up                                          July 29, 2022   AKS
 # 1.1a - Added TF-IDF Model and started JSON file input     Aug 2, 2022     AKS
 #
-import nltk
 import gensim
 import warnings
-import json
 import os
 import pickle
 import glob
-import translate
-import pandas as pd
-import PyPDF2
 import pyLDAvis
-import langdetect
 
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
-from nltk.probability import FreqDist
-from nltk.tokenize import word_tokenize
 
 from database import create_database, pdf_database_write
 from create_webpage import *
 from pdf_utils import pdf_extractor
-from nltk_utils import *
 
-from utils import isEmptyList, Sort
+from utils import isListEmpty
 
 
 
 from pyLDAvis import gensim_models as gensimvis
-from pandas import json_normalize
 
 # get rid of those pesky deprecation warnings.
 warnings.filterwarnings("ignore", category=DeprecationWarning)

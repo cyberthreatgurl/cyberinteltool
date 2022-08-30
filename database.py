@@ -48,7 +48,7 @@ def pdf_database_write(file_name,extracted_text):
 
         cursor = connection.cursor()
         # Executing a SQL query to insert data into  table
-        insert_query = "INSERT INTO patents (FILENAME,CONTENTS) VALUES (" + file_name + ", \"" + str(extracted_text) + "\")"
+        insert_query = """INSERT INTO patents (FILENAME,CONTENTS) VALUES(%s,%s);""" % (file_name, extracted_text)
         cursor.execute(insert_query)
         connection.commit()
         print("1 Record inserted successfully")
