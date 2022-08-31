@@ -8,6 +8,8 @@ Created on Sun Aug 28 21:21:08 2022
 import PyPDF2
 import translate as T
 
+from database import pdf_database_write
+
 from langdetect import detect, DetectorFactory
 from translate import Translator
 
@@ -30,6 +32,7 @@ def pdf_extractor(pdf, corpus_list, text_list):
 
             # read each page of the pdf file and
             # grab the text from it
+            file_text = ""
             for pn in range(0, pdf_obj.numPages):
                 page = pdf_obj.getPage(pn)
 
@@ -39,13 +42,16 @@ def pdf_extractor(pdf, corpus_list, text_list):
                 if langText == 'zh-cn':
                    translator = Translator(to_lang='en', from_lang='zh')
                    text = translator.translate(text)
+                file_text = file_text + " " + text
                 cleaned_list = preprocess(text)
                 corpus_list.append(cleaned_list)
 
                 text_list.append((pdf, pn))
             #               print(pdf_obj.extractText())
 
-                
+
+            pdf_database_write(pdf, file_text)
+
             print('File '+ pdf + ' is ' + langText)
         except Exception as exc:
             exc

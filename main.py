@@ -41,6 +41,7 @@
 # - To run this script, use Python 3.8  (at least).
 # - Ensure the corpus/academic and corpus/patens subfolders are populated
 #   with files of interest.  Look for details in corpus-struct.txt
+import tokenize
 
 # - This program then generates an index.html file and a web page for
 #   each country that shows the LDA visualization of the cyber-defense
@@ -63,13 +64,11 @@ import pyLDAvis
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
 
-from database import create_database, pdf_database_write
+from database import create_database
 from create_webpage import *
 from pdf_utils import pdf_extractor
 
 from utils import isListEmpty
-
-
 
 from pyLDAvis import gensim_models as gensimvis
 
@@ -82,7 +81,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 if __name__ == "__main__":
 
     # create the database
-    #create_datebase()
+    create_database()
     
     #
     # build a list of the countries for patents and academic
@@ -182,10 +181,9 @@ if __name__ == "__main__":
         # corpus list.
         for pdf in pdfs:
             # call the extraction function
+
             corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
-            #write corpus to database
-            pdf_database_write(pdf, text_list)
-            
+
         # Create a dictionary representation of the documents.
         dictionary = Dictionary(corpus_list)
 

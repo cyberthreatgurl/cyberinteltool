@@ -20,7 +20,7 @@ def create_database():
         cursor = connection.cursor()
         # SQL query to create a new table
         create_table_query = '''CREATE TABLE patents
-              (ID INT PRIMARY KEY     NOT NULL,
+              (FILE_ID SERIAL PRIMARY KEY NOT NULL,
               filename TEXT           NOT NULL,
               contents TEXT           ); '''
         # Execute a command: this creates a new table
@@ -48,14 +48,14 @@ def pdf_database_write(file_name,extracted_text):
 
         cursor = connection.cursor()
         # Executing a SQL query to insert data into  table
-        insert_query = """INSERT INTO patents (FILENAME,CONTENTS) VALUES(%s,%s);""" % (file_name, extracted_text)
-        cursor.execute(insert_query)
+        insert_query = "INSERT INTO patents (FILENAME, CONTENTS) VALUES(%s,%s)"
+        cursor.execute(insert_query, (file_name, extracted_text))
         connection.commit()
         print("1 Record inserted successfully")
         # Fetch result
-        cursor.execute("SELECT * from kdawg")
-        record = cursor.fetchall()
-        print("Result ", record)
+        #cursor.execute("SELECT * from patents")
+        #record = cursor.fetchall()
+        #print("Result ", record)
 
 
     except (Exception, psycopg2.Error) as error:

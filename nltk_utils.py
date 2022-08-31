@@ -5,6 +5,7 @@ Created on Sun Aug 28 21:22:36 2022
 
 @author: kdawg
 """
+from nltk import word_tokenize
 from nltk.corpus import stopwords
 
 
