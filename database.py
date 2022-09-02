@@ -18,6 +18,9 @@ def create_database():
                                       database="kdawg")
 
         cursor = connection.cursor()
+
+        cursor.execute("DROP TABLE IF EXISTS PATENTS")
+
         # SQL query to create a new table
         create_table_query = '''CREATE TABLE patents
               (FILE_ID SERIAL PRIMARY KEY NOT NULL,
@@ -33,6 +36,38 @@ def create_database():
     finally:
         if connection:
 
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
+
+def database_exists():
+    try:
+        connection = psycopg2.connect(user="kdawg",
+                                      password="",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="kdawg")
+
+        cursor = connection.cursor()
+
+def record_exists(file_name):
+    # open db
+    try:
+        connection = psycopg2.connect(user="kdawg",
+                                      password="",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="kdawg")
+
+        cursor = connection.cursor()
+        # Executing a SQL query to insert data into  table
+        insert_query = "select FILE_ID, FILENAME from patents where filename = %s"
+        cursor.execute(insert_query,file_name)
+        return cursor.fetchone() is not None
+    except (Exception, psycopg2.Error) as error:
+        print("Error while querying the database: ", error)
+    finally:
+        if connection:
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")

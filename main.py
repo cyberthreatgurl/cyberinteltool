@@ -64,7 +64,7 @@ import pyLDAvis
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
 
-from database import create_database
+from database import create_database, record_exists
 from create_webpage import *
 from pdf_utils import pdf_extractor
 
@@ -81,7 +81,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 if __name__ == "__main__":
 
     # create the database
-    create_database()
+    #create_database()
     
     #
     # build a list of the countries for patents and academic
@@ -180,10 +180,14 @@ if __name__ == "__main__":
         # read every page of the pdf file into the
         # corpus list.
         for pdf in pdfs:
+            # if PDF has not already been processed
             # call the extraction function
 
-            corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
-
+            if record_exists(pdf) == None:
+                corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
+            else:
+                print ("File %s already processed." % pdf)
+                continue
         # Create a dictionary representation of the documents.
         dictionary = Dictionary(corpus_list)
 
