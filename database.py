@@ -49,6 +49,14 @@ def database_exists():
                                       database="kdawg")
 
         cursor = connection.cursor()
+    except (Exception, Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+    finally:
+        if connection:
+
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
 
 def record_exists(file_name):
     # open db

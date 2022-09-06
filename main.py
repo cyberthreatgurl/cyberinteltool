@@ -81,7 +81,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 if __name__ == "__main__":
 
     # create the database
-    #create_database()
+    create_database()
     
     #
     # build a list of the countries for patents and academic
@@ -141,6 +141,7 @@ if __name__ == "__main__":
         ("switzerland", "europe"),
         ("turkey", "europe"),
         ("taiwan", "asia"),
+        ("uae","mideast"),
         ("uk", "europe"),
         ("ukraine", "europe"),
         ("us", "northamerica"),
