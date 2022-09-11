@@ -27,9 +27,7 @@
 # the region and country under the patents and academic subfolders.
 #
 # Notes:
-# This script does not translate any language (yet).  However, support for
-# this feature is planned.
-#
+#   - Primitive machine language translation is performed using the translate package.
 #  - Flat (scanned in) pdf files throw an error and are skipped.
 #  - There is no support (yet) to scrape PDF files from a website.
 #  - Empty folders are skipped.
@@ -41,8 +39,6 @@
 # - To run this script, use Python 3.8  (at least).
 # - Ensure the corpus/academic and corpus/patens subfolders are populated
 #   with files of interest.  Look for details in corpus-struct.txt
-import tokenize
-
 # - This program then generates an index.html file and a web page for
 #   each country that shows the LDA visualization of the cyber-defense
 #   and cyber-offense technologies being researched and developed.
@@ -51,8 +47,10 @@ import tokenize
 #   corpus.
 #
 # Version
-# 1.1 - Cleaned-up                                          July 29, 2022   AKS
+# 2.0 - translation installed...
 # 1.1a - Added TF-IDF Model and started JSON file input     Aug 2, 2022     AKS
+# 1.1 - Cleaned-up                                          July 29, 2022   AKS
+
 #
 import gensim
 import warnings
@@ -60,6 +58,8 @@ import os
 import pickle
 import glob
 import pyLDAvis
+import logging
+import tokenize
 
 from gensim.corpora import Dictionary
 from gensim.models import LdaModel
@@ -69,7 +69,7 @@ from create_webpage import *
 from pdf_utils import pdf_extractor
 
 from utils import isListEmpty
-
+from config import countries,data_folder
 from pyLDAvis import gensim_models as gensimvis
 
 # get rid of those pesky deprecation warnings.
@@ -79,6 +79,8 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 #
 if __name__ == "__main__":
+    # Setup logging to 'cift.log' in current directory.
+    logging.basicConfig(filename='cift.log', filemode='w',encoding='utf-8', level=logging.INFO)
 
     # create the database
     create_database()
@@ -91,61 +93,6 @@ if __name__ == "__main__":
     # read in USPTO Patent json files
 #    json_extractor()
 
-    sources = ["patents", "academic"]
-
-    # this section needs to be manually updated
-    # as new country data is found.  Of course,
-    # this needs to be done automatically in the future.
-    countries = [
-        ("australia", "oceania"),
-        ("austria", "europe"),
-        ("belarus", "europe"),
-        ("belgium", "europe"),
-        ("canada", "northamerica"),
-        ("china", "asia"),
-        ("cyprus", "europe"),
-        ("czechrepublic", "europe"),
-        ("denmark", "europe"),
-        ("ecuador", "southamerica"),
-        ("finland", "europe"),
-        ("france", "europe"),
-        ("ghana", "africa"),
-        ("germany", "europe"),
-        ("greece", "europe"),
-        ("india", "asia"),
-        ("iraq", "asia"),
-        ("israel", "mideast"),
-        ("italy", "europe"),
-        ("japan", "asia"),
-        ("jordan", "asia"),
-        ("liechtenstein", "europe"),
-        ("morocco", "africa"),
-        ("netherlands", "europe"),
-        ("norway", "europe"),
-        ("nigeria", "africa"),
-        ("pakistan", "asia"),
-        ("poland", "europe"),
-        ("portugal", "europe"),
-        ("romania", "europe"),
-        ("russia", "asia"),
-        ("saudiarabia", "mideast"),
-        ("serbia", "europe"),
-        ("singapore", "asia"),
-        ("southafrica", "africa"),
-        ("southkorea", "asia"),
-        ("spain", "europe"),
-        ("srilanka", "asia"),
-        ("sweden", "europe"),
-        ("slovakrepublick", "europe"),
-        ("slovenia", "europe"),
-        ("switzerland", "europe"),
-        ("turkey", "europe"),
-        ("taiwan", "asia"),
-        ("uae","mideast"),
-        ("uk", "europe"),
-        ("ukraine", "europe"),
-        ("us", "northamerica"),
-    ]
 
     build_html_head()
     build_html_body_frame()
@@ -153,7 +100,6 @@ if __name__ == "__main__":
     # and are further grouped by region (mideast, asia, etc.) and
     # country
     # the corpus folder should be in the same folder as the main.py file
-    data_folder = "corpus"
     cur_dir = os.getcwd()
     abs_path = cur_dir + "/" + data_folder
 
@@ -169,11 +115,11 @@ if __name__ == "__main__":
 
         pdfs = glob.glob(pdf_path, recursive=True)
         if len(pdfs) != 0:
-            print("Country : " + country[0])
-            print("Number of " + country[0] + " " + " files : " + str(len(pdfs)))
+            logging.info("Country : " + country[0])
+            logging.info("Number of " + country[0] + " " + " files : " + str(len(pdfs)))
         else:
-            print("Their are no data files for " + country[0])
-            print("-------------")
+            logging.info("Their are no data files for " + country[0])
+            logging.info("-------------")
             continue
         corpus_list = []
         text_list = []
@@ -186,8 +132,10 @@ if __name__ == "__main__":
 
             if record_exists(pdf) == None:
                 corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
-            else:
-                print ("File %s already processed." % pdf)
+                logging.info('Processed file: %s' % pdf)
+                print('Processed file: %s' % pdf)
+        else:
+                logging.info('File %s already processed.' % pdf)
                 continue
         # Create a dictionary representation of the documents.
         dictionary = Dictionary(corpus_list)
@@ -196,7 +144,7 @@ if __name__ == "__main__":
         # from them.  This is probably due to language issues that
         # have yet to be coded for.
         if dictionary == 0:
-            print("Corrupt {0}  files.".format(country[0]))
+            logging.debug("Corrupt file: {0}.".format(country[0]))
             continue
 
         # Filter out words that occur less than 5 times
@@ -206,7 +154,7 @@ if __name__ == "__main__":
         corpus = [dictionary.doc2bow(pdf_file) for pdf_file in corpus_list]
 
         if len(corpus) == 0 or isListEmpty(corpus):
-            print("No usable files for this country, corpus empty.")
+            logging.info("No usable files for this country, corpus empty.")
             continue
         else:
             total_files_in_corpus = len(pdfs)
@@ -220,9 +168,8 @@ if __name__ == "__main__":
         id2word = dictionary.id2token
         total_pages = len(corpus)
 
-        print("Total number of pages parsed in this corpus: %d" % total_pages)
-        print("-------------")
-        print("")
+        logging.info("Total number of pages parsed in this corpus: %d" % total_pages)
+        logging.info("-------------")
 
         #
         # create a TF-IDF model

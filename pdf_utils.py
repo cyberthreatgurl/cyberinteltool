@@ -6,7 +6,7 @@ Created on Sun Aug 28 21:21:08 2022
 @author: kdawg
 """
 import PyPDF2
-import translate as T
+import logging
 
 from database import pdf_database_write
 
@@ -52,7 +52,7 @@ def pdf_extractor(pdf, corpus_list, text_list):
 
             pdf_database_write(pdf, file_text)
 
-            print('File '+ pdf + ' is ' + langText)
+            logging.info('File '+ pdf + ' is ' + langText)
         except Exception as exc:
             exc
 

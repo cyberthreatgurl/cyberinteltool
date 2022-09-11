@@ -5,7 +5,7 @@ Created on Sun Aug 28 18:52:36 2022
 
 @author: kdawg
 """
-
+import logging
 import psycopg2
 from psycopg2 import Error
 
@@ -29,16 +29,17 @@ def create_database():
         # Execute a command: this creates a new table
         cursor.execute(create_table_query)
         connection.commit()
-        print("Table created successfully in PostgreSQL ")
+        logging.info("Table created successfully. ")
 
     except (Exception, Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+        logging.debug("Error %s while connecting to PostgreSQL", error)
+        print('Error while connecting to PostgreSQL', error)
     finally:
         if connection:
 
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
+            logging.info("PostgreSQL connection closed.")
 
 def database_exists():
     try:
@@ -50,13 +51,13 @@ def database_exists():
 
         cursor = connection.cursor()
     except (Exception, Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+        logging.debug("Error while connecting to PostgreSQL", error)
     finally:
         if connection:
 
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
+            logging.info("PostgreSQL connection is closed")
 
 def record_exists(file_name):
     # open db
@@ -73,12 +74,12 @@ def record_exists(file_name):
         cursor.execute(insert_query,file_name)
         return cursor.fetchone() is not None
     except (Exception, psycopg2.Error) as error:
-        print("Error while querying the database: ", error)
+        logging.debug("Error while querying the database: ", error)
     finally:
         if connection:
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
+            logging.info("PostgreSQL connection is closed")
 
 def pdf_database_write(file_name,extracted_text):
     
@@ -94,7 +95,7 @@ def pdf_database_write(file_name,extracted_text):
         insert_query = "INSERT INTO patents (FILENAME, CONTENTS) VALUES(%s,%s)"
         cursor.execute(insert_query, (file_name, extracted_text))
         connection.commit()
-        print("1 Record inserted successfully")
+        logging.info("1 Record inserted successfully")
         # Fetch result
         #cursor.execute("SELECT * from patents")
         #record = cursor.fetchall()
@@ -102,9 +103,9 @@ def pdf_database_write(file_name,extracted_text):
 
 
     except (Exception, psycopg2.Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+        logging.debug("Error while connecting to PostgreSQL", error)
     finally:
         if connection:
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
+            logging.info("PostgreSQL connection is closed")
