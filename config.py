@@ -1,5 +1,5 @@
 data_folder = "corpus"
-staging_folder = "courpus/staging"
+staging_folder = "corpus/staging"
 sources = ["patents", "academic"]
 
 # this section needs to be manually updated

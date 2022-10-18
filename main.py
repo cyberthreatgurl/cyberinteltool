@@ -52,6 +52,7 @@
 # 1.1 - Cleaned-up                                          July 29, 2022   AKS
 
 #
+import tika
 import gensim
 import warnings
 import os
@@ -66,7 +67,8 @@ from gensim.models import LdaModel
 
 from database import create_database, record_exists
 from create_webpage import *
-from pdf_utils import pdf_extractor
+from pdf_utils import pdf_extractor, tika_pdf_extractor
+from tika import parser
 
 from utils import isListEmpty
 from config import countries,data_folder
@@ -81,6 +83,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 if __name__ == "__main__":
     # Setup logging to 'cift.log' in current directory.
     logging.basicConfig(filename='cift.log', filemode='w',encoding='utf-8', level=logging.INFO)
+    tika.initVM()
 
     # create the database
     create_database()
@@ -131,7 +134,7 @@ if __name__ == "__main__":
             # call the extraction function
 
             if record_exists(pdf) == None:
-                corpus_list, text_list = pdf_extractor(pdf, corpus_list, text_list)
+                corpus_list, text_list = tika_pdf_extractor(pdf, corpus_list, text_list)
                 logging.info('Processed file: %s' % pdf)
                 print('Processed file: %s' % pdf)
         else:
@@ -154,7 +157,7 @@ if __name__ == "__main__":
         corpus = [dictionary.doc2bow(pdf_file) for pdf_file in corpus_list]
 
         if len(corpus) == 0 or isListEmpty(corpus):
-            logging.info("No usable files for this country, corpus empty.")
+            logging.info("No usable files for %s ." % country)
             continue
         else:
             total_files_in_corpus = len(pdfs)
@@ -168,7 +171,7 @@ if __name__ == "__main__":
         id2word = dictionary.id2token
         total_pages = len(corpus)
 
-        logging.info("Total number of pages parsed in this corpus: %d" % total_pages)
+        logging.info("Total number of pages parsed for %s: %d" % country,total_pages)
         logging.info("-------------")
 
         #

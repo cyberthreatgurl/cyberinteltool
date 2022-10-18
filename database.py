@@ -25,21 +25,22 @@ def create_database():
         create_table_query = '''CREATE TABLE patents
               (FILE_ID SERIAL PRIMARY KEY NOT NULL,
               filename TEXT           NOT NULL,
-              contents TEXT           ); '''
+              title TEXT            NOT NULL,
+              content TEXT           ); '''
         # Execute a command: this creates a new table
         cursor.execute(create_table_query)
         connection.commit()
-        logging.info("Table created successfully. ")
+        logging.info('Patents table created successfully.')
 
     except (Exception, Error) as error:
-        logging.debug("Error %s while connecting to PostgreSQL", error)
-        print('Error while connecting to PostgreSQL', error)
+        logging.debug('Error %s while connecting to PostgreSQL' % error)
+        print('Error %s while connecting to PostgreSQL' % error)
     finally:
         if connection:
 
             cursor.close()
             connection.close()
-            logging.info("PostgreSQL connection closed.")
+            #logging.info("PostgreSQL connection closed.")
 
 def database_exists():
     try:
@@ -57,7 +58,7 @@ def database_exists():
 
             cursor.close()
             connection.close()
-            logging.info("PostgreSQL connection is closed")
+            #logging.info("PostgreSQL connection is closed")
 
 def record_exists(file_name):
     # open db
@@ -79,9 +80,9 @@ def record_exists(file_name):
         if connection:
             cursor.close()
             connection.close()
-            logging.info("PostgreSQL connection is closed")
+            #logging.info("PostgreSQL connection is closed")
 
-def pdf_database_write(file_name,extracted_text):
+def pdf_database_write(file_name, extracted_title, extracted_content):
     
     try:
         connection = psycopg2.connect(user="kdawg",
@@ -92,20 +93,18 @@ def pdf_database_write(file_name,extracted_text):
 
         cursor = connection.cursor()
         # Executing a SQL query to insert data into  table
-        insert_query = "INSERT INTO patents (FILENAME, CONTENTS) VALUES(%s,%s)"
-        cursor.execute(insert_query, (file_name, extracted_text))
+        insert_query = "INSERT INTO patents (FILENAME, TITLE, CONTENT) VALUES(%s,%s,%s)"
+        cursor.execute(insert_query, (file_name,extracted_title, extracted_content))
         connection.commit()
         logging.info("1 Record inserted successfully")
         # Fetch result
         #cursor.execute("SELECT * from patents")
         #record = cursor.fetchall()
         #print("Result ", record)
-
-
     except (Exception, psycopg2.Error) as error:
         logging.debug("Error while connecting to PostgreSQL", error)
     finally:
         if connection:
             cursor.close()
             connection.close()
-            logging.info("PostgreSQL connection is closed")
+            #logging.info("PostgreSQL connection is closed")
